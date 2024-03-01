@@ -6,12 +6,12 @@ services:
       - "TRACING=1"
       - "CYPHERNODE_URL=https://gatekeeper:${GATEKEEPER_PORT}"
     image: blockstream/esplora:latest
-    command: "/srv/explorer/run.sh bitcoin-mainnet explorer"
+    command: "/srv/explorer/run.sh bitcoin-${NETWORK} explorer"
     volumes:
       - "$APP_SCRIPT_PATH/data:/esplora/data"
       - "$GATEKEEPER_DATAPATH/certs/cert.pem:/esplora/cert.pem:ro"
       - "$LOGS_DATAPATH:/esplora/logs"
-      - "$BITCOIN_DATAPATH:/data"
+      - "$BITCOIN_DATAPATH/${NETWORK}:/data"
     ports:
       - "50001:50001"
       - "3002:80"
