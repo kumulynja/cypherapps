@@ -11,7 +11,7 @@ services:
       - "$APP_SCRIPT_PATH/data:/esplora/data"
       - "$GATEKEEPER_DATAPATH/certs/cert.pem:/esplora/cert.pem:ro"
       - "$LOGS_DATAPATH:/esplora/logs"
-      - "$BITCOIN_DATAPATH/${NETWORK}:/data"
+      - "$BITCOIN_DATAPATH:/data"
     ports:
       - "50001:50001"
       - "3002:80"
