@@ -14,7 +14,7 @@ services:
       - "$BITCOIN_DATAPATH:/data/bitcoin"
     ports:
       - "50001:50001"
-      - "3002:80"
+      - "3002:3002"
     networks:
       - cyphernodeappsnet
     restart: always
