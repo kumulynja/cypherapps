@@ -1,0 +1,82 @@
+version: "3"
+
+services:
+  electrs:
+    image: mempool_electrs:latest
+    command:
+      - "--network=${NETWORK}"
+      - "--address-search"
+      - "--http-addr"
+      - "0.0.0.0:3002"
+      - "-v"
+      - "-v"
+      - "-v"
+      - "-v"
+    volumes:
+      - "$BITCOIN_DATAPATH/:/.bitcoin/:rw"
+    networks:
+      - cyphernodeappsnet
+      - cyphernodenet
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=cyphernodeappsnet
+
+      - traefik.http.routers.electrs.rule=PathPrefix(`/electrs`)
+      - traefik.http.routers.electrs.entrypoints=websecure
+      - traefik.http.routers.electrs.tls=true
+      - traefik.http.routers.electrs.service=electrs
+      - traefik.http.routers.electrs.middlewares=electrs-stripprefix@docker,electrs-auth@docker
+
+      - traefik.http.routers.electrs-onion.rule=PathPrefix(`/electrs`)
+      - traefik.http.routers.electrs-onion.entrypoints=onion
+      - traefik.http.routers.electrs-onion.service=electrs
+      - traefik.http.routers.electrs-onion.middlewares=electrs-stripprefix@docker,electrs-auth@docker
+
+      - traefik.http.services.electrs.loadbalancer.server.port=3002
+      - traefik.http.services.electrs.loadbalancer.passHostHeader=true
+
+      - traefik.http.middlewares.electrs-redirectregex.redirectregex.regex=^(.*)/electrs$$
+      - traefik.http.middlewares.electrs-redirectregex.redirectregex.replacement=$$1/electrs/
+      - traefik.http.middlewares.electrs-redirectregex.redirectregex.permanent=true
+      - traefik.http.middlewares.electrs-stripprefix.stripprefix.prefixes=/electrs,/electrs/
+      # - traefik.http.middlewares.electrs-stripprefix.stripprefix.forceSlash=true
+      - traefik.http.middlewares.electrs-auth.basicauth.usersfile=/htpasswd/htpasswd
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=cyphernodeappsnet
+
+        - traefik.http.routers.electrs.rule=PathPrefix(`/electrs`)
+        - traefik.http.routers.electrs.entrypoints=websecure
+        - traefik.http.routers.electrs.tls=true
+        - traefik.http.routers.electrs.service=electrs
+        - traefik.http.routers.electrs.middlewares=electrs-stripprefix@docker,electrs-auth@docker
+
+        - traefik.http.routers.electrs-onion.rule=PathPrefix(`/electrs`)
+        - traefik.http.routers.electrs-onion.entrypoints=onion
+        - traefik.http.routers.electrs-onion.service=electrs
+        - traefik.http.routers.electrs-onion.middlewares=electrs-stripprefix@docker,electrs-auth@docker
+
+        - traefik.http.services.electrs.loadbalancer.server.port=3002
+        - traefik.http.services.electrs.loadbalancer.passHostHeader=true
+
+        - traefik.http.middlewares.electrs-redirectregex.redirectregex.regex=^(.*)/electrs$$
+        - traefik.http.middlewares.electrs-redirectregex.redirectregex.replacement=$$1/electrs/
+        - traefik.http.middlewares.electrs-redirectregex.redirectregex.permanent=true
+        - traefik.http.middlewares.electrs-stripprefix.stripprefix.prefixes=/electrs,/electrs/
+        # - traefik.http.middlewares.electrs-stripprefix.stripprefix.forceSlash=true
+        - traefik.http.middlewares.electrs-auth.basicauth.usersfile=/htpasswd/htpasswd
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.io.cyphernode == true
+      restart_policy:
+        delay: 1s
+      update_config:
+        parallelism: 1
+networks:
+  cyphernodeappsnet:
+    external: true
+  cyphernodenet:
+    external: true
