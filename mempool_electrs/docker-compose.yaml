@@ -6,14 +6,19 @@ services:
     command:
       - "--network=${NETWORK}"
       - "--address-search"
+      - "--jsonrpc-import"
       - "--http-addr"
       - "0.0.0.0:3002"
+      - "--daemon-rpc-addr"
+      - "bitcoin:18443"
+      - "--cookie"
+      - "bitcoin:testpassword"
       - "-v"
       - "-v"
       - "-v"
       - "-v"
     volumes:
-      - "$BITCOIN_DATAPATH/:/.bitcoin/:rw"
+      - "$BITCOIN_DATAPATH/:/.bitcoin/"
     networks:
       - cyphernodeappsnet
       - cyphernodenet
